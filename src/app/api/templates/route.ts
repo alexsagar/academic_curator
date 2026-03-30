@@ -1,30 +1,18 @@
 import { NextResponse } from "next/server";
-import type { Prisma } from "@prisma/client";
 import { unstable_cache } from "next/cache";
 import prisma from "@/lib/prisma";
 import { clampInteger } from "@/lib/validation";
 import { CACHE_TAGS } from "@/lib/cache";
 import { logger } from "@/lib/logger";
+import { buildPublicTemplateWhere } from "@/lib/template-marketplace";
 
 async function fetchTemplates(
   q: string,
-  category: string,
+  categorySlug: string,
   page: number,
   pageSize: number
 ) {
-  const where: Prisma.TemplateWhereInput = { isActive: true };
-
-  if (q) {
-    where.OR = [
-      { name: { contains: q, mode: "insensitive" } },
-      { description: { contains: q, mode: "insensitive" } },
-      { category: { contains: q, mode: "insensitive" } },
-    ];
-  }
-
-  if (category && category !== "All" && category !== "All Templates") {
-    where.category = category;
-  }
+  const where = buildPublicTemplateWhere(q, categorySlug);
 
   const [total, templates] = await Promise.all([
     prisma.template.count({ where }),
@@ -38,12 +26,52 @@ async function fetchTemplates(
         name: true,
         slug: true,
         category: true,
+        demoUrl: true,
         description: true,
         thumbnail: true,
         isPremium: true,
+        categoryLinks: {
+          select: {
+            category: {
+              select: {
+                id: true,
+                slug: true,
+                name: true,
+                icon: true,
+              },
+            },
+          },
+          orderBy: {
+            category: {
+              sortOrder: "asc",
+            },
+          },
+        },
       },
     }),
   ]);
+
+  const categories = await prisma.templateCategory.findMany({
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      description: true,
+      icon: true,
+      templateLinks: {
+        where: {
+          template: {
+            isActive: true,
+            approvalStatus: "APPROVED",
+          },
+        },
+        select: {
+          templateId: true,
+        },
+      },
+    },
+  });
 
   const ratings = templates.length
     ? await prisma.templateRating.groupBy({
@@ -73,10 +101,19 @@ async function fetchTemplates(
       const rating = ratingMap.get(template.id);
       return {
         ...template,
+        categories: template.categoryLinks.map((link) => link.category),
         avgRating: rating?.avgRating ?? "0.0",
         ratingsCount: rating?.ratingsCount ?? 0,
       };
     }),
+    categories: categories.map((category) => ({
+      id: category.id,
+      slug: category.slug,
+      name: category.name,
+      description: category.description,
+      icon: category.icon,
+      templatesCount: category.templateLinks.length,
+    })),
     pagination: {
       page,
       pageSize,

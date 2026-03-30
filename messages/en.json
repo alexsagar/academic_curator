@@ -10,5 +10,27 @@
   "Home": {
     "title": "Academic Curator",
     "subtitle": "Curate your scholarly identity."
+  },
+  "Templates": {
+    "marketplaceTitle": "Category-Based Template Marketplace",
+    "allCategories": "All Categories",
+    "searchPlaceholder": "Search templates, audiences, or keywords",
+    "noResults": "No templates found",
+    "creatorDashboard": "Creator Dashboard",
+    "submitForReview": "Submit for Review",
+    "saveDraft": "Save Draft",
+    "resubmit": "Resubmit for Review",
+    "approved": "Approved",
+    "submitted": "Submitted",
+    "rejected": "Rejected",
+    "draft": "Draft"
+  },
+  "Admin": {
+    "templateMarketplace": "Template Marketplace",
+    "moderationQueue": "Moderation Queue",
+    "approve": "Approve",
+    "reject": "Reject",
+    "reviewNotes": "Review Notes",
+    "pendingReviews": "Pending Reviews"
   }
 }

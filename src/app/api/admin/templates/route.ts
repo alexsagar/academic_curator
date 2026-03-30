@@ -10,8 +10,33 @@ export async function GET() {
 
   const templates = await prisma.template.findMany({
     orderBy: { createdAt: "desc" },
-    include: { portfolios: { select: { id: true } } }
+    include: {
+      portfolios: { select: { id: true } },
+      creator: { select: { id: true, name: true, email: true } },
+      categoryLinks: {
+        select: {
+          category: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+              icon: true,
+            },
+          },
+        },
+        orderBy: {
+          category: {
+            sortOrder: "asc",
+          },
+        },
+      },
+    }
   });
 
-  return NextResponse.json(templates);
+  return NextResponse.json(
+    templates.map((template) => ({
+      ...template,
+      categories: template.categoryLinks.map((item) => item.category),
+    }))
+  );
 }

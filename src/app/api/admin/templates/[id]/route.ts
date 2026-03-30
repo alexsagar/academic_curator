@@ -4,6 +4,32 @@ import prisma from "@/lib/prisma";
 import { getAdminSession } from "@/lib/auth";
 import { revalidateTemplates } from "@/lib/cache";
 
+const adminTemplateInclude = {
+  portfolios: { select: { id: true } },
+  creator: { select: { id: true, name: true, email: true } },
+  categoryLinks: {
+    select: {
+      category: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          icon: true,
+        },
+      },
+    },
+    orderBy: {
+      category: {
+        sortOrder: "asc",
+      },
+    },
+  },
+} satisfies Prisma.TemplateInclude;
+
+type AdminTemplatePayload = Prisma.TemplateGetPayload<{
+  include: typeof adminTemplateInclude;
+}>;
+
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -28,6 +54,19 @@ export async function PUT(
 
   revalidateTemplates();
 
-  return NextResponse.json(template);
-}
+  const updatedTemplate = await prisma.template.findUnique({
+    where: { id: template.id },
+    include: adminTemplateInclude,
+  });
 
+  return NextResponse.json(
+    updatedTemplate
+      ? {
+          ...updatedTemplate,
+          categories: (updatedTemplate as AdminTemplatePayload).categoryLinks.map(
+            (item: AdminTemplatePayload["categoryLinks"][number]) => item.category
+          ),
+        }
+      : null
+  );
+}

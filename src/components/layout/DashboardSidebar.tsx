@@ -8,6 +8,7 @@ import Icon from "@/components/ui/Icon";
 const sidebarLinks = [
   { label: "Dashboard", href: "/dashboard", icon: "dashboard" },
   { label: "Create New", href: "/dashboard/portfolio/new", icon: "add_circle" },
+  { label: "My Templates", href: "/dashboard/templates", icon: "dashboard_customize" },
   { label: "Settings", href: "/dashboard/settings", icon: "settings" },
 ];
 

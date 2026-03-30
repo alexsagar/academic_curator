@@ -43,7 +43,7 @@ export async function POST(request: Request) {
   const portfolioTitle = normalizedTitle.data;
 
   const template = await prisma.template.findFirst({
-    where: { id: templateId, isActive: true },
+    where: { id: templateId, isActive: true, approvalStatus: "APPROVED" },
     select: { id: true, name: true },
   });
 

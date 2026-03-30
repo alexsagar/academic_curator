@@ -36,6 +36,13 @@ enum SubscriptionStatus {
   TRIALING
 }
 
+enum TemplateSubmissionStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
 // ── Auth Models (NextAuth) ──
 
 model Account {
@@ -89,6 +96,8 @@ model User {
   accounts             Account[]
   sessions             Session[]
   portfolios           Portfolio[]
+  templateSubmissions  TemplateSubmission[]
+  createdTemplates     Template[]         @relation("CreatedTemplates")
   activities           ActivityLog[]
   ratings              TemplateRating[]
   feedback             TemplateFeedback[]
@@ -98,26 +107,97 @@ model User {
 }
 
 model Template {
-  id          String             @id @default(cuid())
-  name        String
-  slug        String             @unique
-  category    String
-  tags        String[]           @default([])
-  description String
-  thumbnail   String
-  htmlContent String             @db.Text
-  cssContent  String             @db.Text
-  isPremium   Boolean            @default(false)
-  isActive    Boolean            @default(true)
-  portfolios  Portfolio[]
-  ratings     TemplateRating[]
-  feedback    TemplateFeedback[]
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
+  id             String                   @id @default(cuid())
+  name           String
+  slug           String                   @unique
+  category       String
+  tags           String[]                 @default([])
+  description    String
+  thumbnail      String
+  demoUrl        String?
+  htmlContent    String                   @db.Text
+  cssContent     String                   @db.Text
+  templateConfig Json                     @default("{}")
+  isPremium      Boolean                  @default(false)
+  isActive       Boolean                  @default(true)
+  approvalStatus TemplateSubmissionStatus @default(APPROVED)
+  creatorId      String?
+  creator        User?                    @relation("CreatedTemplates", fields: [creatorId], references: [id], onDelete: SetNull)
+  submissionId   String?                  @unique
+  submission     TemplateSubmission?      @relation("SubmissionTemplate", fields: [submissionId], references: [id], onDelete: SetNull)
+  categoryLinks  TemplateCategoryOnTemplate[]
+  portfolios     Portfolio[]
+  ratings        TemplateRating[]
+  feedback       TemplateFeedback[]
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
 
   @@index([category])
   @@index([isActive])
   @@index([isActive, category])
+  @@index([approvalStatus, isActive])
+  @@index([creatorId])
+}
+
+model TemplateCategory {
+  id              String                       @id @default(cuid())
+  slug            String                       @unique
+  name            String
+  description     String
+  icon            String?
+  sortOrder       Int                          @default(0)
+  templateLinks   TemplateCategoryOnTemplate[]
+  submissionLinks TemplateCategoryOnSubmission[]
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+
+  @@index([sortOrder])
+}
+
+model TemplateCategoryOnTemplate {
+  templateId String
+  categoryId String
+  template   Template         @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  category   TemplateCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([templateId, categoryId])
+  @@index([categoryId])
+}
+
+model TemplateSubmission {
+  id               String                   @id @default(cuid())
+  userId           String
+  user             User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title            String
+  description      String
+  thumbnail        String
+  demoUrl          String?
+  tags             String[]                 @default([])
+  htmlContent      String                   @db.Text
+  cssContent       String                   @db.Text
+  templateConfig   Json                     @default("{}")
+  status           TemplateSubmissionStatus @default(DRAFT)
+  adminReviewNotes String?
+  submittedAt      DateTime?
+  reviewedAt       DateTime?
+  categories       TemplateCategoryOnSubmission[]
+  publishedTemplate Template?               @relation("SubmissionTemplate")
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+
+  @@index([userId])
+  @@index([status, createdAt])
+  @@index([userId, updatedAt])
+}
+
+model TemplateCategoryOnSubmission {
+  submissionId String
+  categoryId   String
+  submission   TemplateSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  category     TemplateCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([submissionId, categoryId])
+  @@index([categoryId])
 }
 
 model Portfolio {

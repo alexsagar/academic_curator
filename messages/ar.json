@@ -1,14 +1,36 @@
 {
   "Common": {
-    "welcome": "مرحباً",
+    "welcome": "مرحبا",
     "login": "تسجيل الدخول",
     "signup": "إنشاء حساب",
-    "dashboard": "لوحة القيادة",
+    "dashboard": "لوحة التحكم",
     "settings": "الإعدادات",
     "logout": "تسجيل الخروج"
   },
   "Home": {
     "title": "المنسق الأكاديمي",
     "subtitle": "نظم هويتك الأكاديمية."
+  },
+  "Templates": {
+    "marketplaceTitle": "سوق القوالب حسب الفئة",
+    "allCategories": "كل الفئات",
+    "searchPlaceholder": "ابحث عن القوالب أو الفئات أو الكلمات المفتاحية",
+    "noResults": "لم يتم العثور على قوالب",
+    "creatorDashboard": "لوحة المنشئ",
+    "submitForReview": "إرسال للمراجعة",
+    "saveDraft": "حفظ كمسودة",
+    "resubmit": "إعادة الإرسال للمراجعة",
+    "approved": "تمت الموافقة",
+    "submitted": "تم الإرسال",
+    "rejected": "مرفوض",
+    "draft": "مسودة"
+  },
+  "Admin": {
+    "templateMarketplace": "سوق القوالب",
+    "moderationQueue": "قائمة الإشراف",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "reviewNotes": "ملاحظات المراجعة",
+    "pendingReviews": "المراجعات المعلقة"
   }
 }

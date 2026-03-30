@@ -15,7 +15,7 @@ export default async function NewPortfolioPage() {
   if (!session) redirect("/login");
 
   const templates = await prisma.template.findMany({
-    where: { isActive: true },
+    where: { isActive: true, approvalStatus: "APPROVED" },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -24,6 +24,21 @@ export default async function NewPortfolioPage() {
       category: true,
       isPremium: true,
       thumbnail: true,
+      categoryLinks: {
+        select: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          category: {
+            sortOrder: "asc",
+          },
+        },
+      },
     },
   });
 
@@ -51,9 +66,19 @@ export default async function NewPortfolioPage() {
               </div>
             </div>
             <div className="p-6">
-              <span className="text-[10px] font-bold tracking-widest uppercase text-primary mb-2 block">
-                {t.category}
-              </span>
+              <div className="mb-2 flex flex-wrap gap-2">
+                {(t.categoryLinks.length > 0
+                  ? t.categoryLinks.map((item) => item.category.name)
+                  : [t.category]
+                ).map((name) => (
+                  <span
+                    key={name}
+                    className="text-[10px] font-bold tracking-widest uppercase text-primary"
+                  >
+                    {name}
+                  </span>
+                ))}
+              </div>
               <h3 className="text-lg font-headline font-bold mb-2">{t.name}</h3>
               <p className="text-on-surface-variant text-sm mb-4">{t.description}</p>
               {t.isPremium && (

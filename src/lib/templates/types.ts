@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import type { PortfolioCustomizations } from "@/lib/portfolio";
 import type { Template } from "@prisma/client";
 

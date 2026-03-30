@@ -1,136 +1,345 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import Icon from "@/components/ui/Icon";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import LoadingIndicator from "@/components/ui/LoadingIndicator";
 
-interface Template {
+interface TemplateCategory {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+}
+
+interface TemplateRecord {
   id: string;
   name: string;
+  slug: string;
   category: string;
   isActive: boolean;
   isPremium: boolean;
   portfolios: Array<{ id: string }>;
+  categories: TemplateCategory[];
+  creator: {
+    id: string;
+    name: string | null;
+    email: string;
+  } | null;
 }
 
-export default function AdminTemplatesPage() {
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [loading, setLoading] = useState(true);
+interface TemplateSubmissionRecord {
+  id: string;
+  title: string;
+  description: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED";
+  adminReviewNotes: string | null;
+  createdAt: string;
+  submittedAt: string | null;
+  user: {
+    id: string;
+    name: string | null;
+    email: string;
+  };
+  categories: TemplateCategory[];
+}
 
-  const fetchTemplates = useCallback(async () => {
+const statusStyles: Record<string, string> = {
+  SUBMITTED: "bg-primary/10 text-primary",
+  APPROVED: "bg-emerald-100 text-emerald-700",
+  REJECTED: "bg-error/10 text-error",
+  DRAFT: "bg-surface-container-high text-on-surface",
+};
+
+export default function AdminTemplatesPage() {
+  const [templates, setTemplates] = useState<TemplateRecord[]>([]);
+  const [submissions, setSubmissions] = useState<TemplateSubmissionRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
+
+  const pendingSubmissions = useMemo(
+    () => submissions.filter((submission) => submission.status === "SUBMITTED"),
+    [submissions]
+  );
+
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/templates");
-      const data = await res.json();
-      setTemplates(Array.isArray(data) ? data : []);
-    } catch (e) {
-      console.error(e);
+      setError(null);
+
+      const [templatesResponse, submissionsResponse] = await Promise.all([
+        fetch("/api/admin/templates"),
+        fetch("/api/admin/template-submissions?status=SUBMITTED"),
+      ]);
+
+      if (!templatesResponse.ok || !submissionsResponse.ok) {
+        throw new Error("Unable to load template marketplace data");
+      }
+
+      const [templatesPayload, submissionsPayload] = await Promise.all([
+        templatesResponse.json(),
+        submissionsResponse.json(),
+      ]);
+
+      setTemplates(Array.isArray(templatesPayload) ? templatesPayload : []);
+      setSubmissions(Array.isArray(submissionsPayload) ? submissionsPayload : []);
+    } catch (fetchError) {
+      setError(
+        fetchError instanceof Error ? fetchError.message : "Unable to load template marketplace data"
+      );
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    void fetchTemplates();
-  }, [fetchTemplates]);
+    void fetchData();
+  }, [fetchData]);
 
-  const toggleTemplate = async (id: string, field: "isActive" | "isPremium", currentValue: boolean) => {
+  const toggleTemplate = async (
+    id: string,
+    field: "isActive" | "isPremium",
+    currentValue: boolean
+  ) => {
     try {
-      await fetch(`/api/admin/templates/${id}`, {
+      const response = await fetch(`/api/admin/templates/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: !currentValue }),
       });
-      void fetchTemplates();
-    } catch (e) {
-      console.error(e);
+
+      if (!response.ok) {
+        throw new Error("Unable to update template");
+      }
+
+      await fetchData();
+    } catch (toggleError) {
+      setError(toggleError instanceof Error ? toggleError.message : "Unable to update template");
+    }
+  };
+
+  const reviewSubmission = async (
+    id: string,
+    action: "approve" | "reject"
+  ) => {
+    try {
+      const response = await fetch(`/api/admin/template-submissions/${id}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          reviewNotes: reviewNotes[id] ?? "",
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(payload?.error || "Unable to review submission");
+      }
+
+      await fetchData();
+    } catch (reviewError) {
+      setError(reviewError instanceof Error ? reviewError.message : "Unable to review submission");
     }
   };
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div className="space-y-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-headline font-extrabold text-on-surface tracking-tight mb-2">
-            Template Management
+          <h1 className="text-3xl font-headline font-extrabold text-on-surface tracking-tight">
+            Template Marketplace
           </h1>
-          <p className="text-on-surface-variant text-sm">
-            Upload new designs and manage existing portfolio templates.
+          <p className="mt-2 text-sm text-on-surface-variant">
+            Moderate creator submissions and manage the approved public template catalog.
           </p>
         </div>
-        <button className="flex items-center gap-2 px-6 py-3 signature-cta text-white font-label font-bold text-sm tracking-wider uppercase rounded-md shadow-md hover:scale-105 transition-transform">
-          <Icon name="add" className="text-[20px]" />
-          New Template
-        </button>
+
+        <div className="rounded-2xl bg-surface-container-low px-5 py-4 text-right">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+            Pending Reviews
+          </p>
+          <p className="mt-1 text-3xl font-headline font-extrabold text-primary">
+            {pendingSubmissions.length}
+          </p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {error ? (
+        <div className="rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+          {error}
+        </div>
+      ) : null}
+
+      <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-headline font-bold text-on-surface">Submitted Queue</h2>
+            <p className="mt-1 text-sm text-on-surface-variant">
+              Review creator templates before they appear in the public marketplace.
+            </p>
+          </div>
+        </div>
+
         {loading ? (
-          <div className="col-span-full p-12 text-center">
+          <div className="p-12 text-center">
+            <LoadingIndicator label="Loading moderation queue..." />
+          </div>
+        ) : pendingSubmissions.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-outline-variant/30 bg-surface-container-low p-10 text-center">
+            <p className="text-on-surface-variant">No submitted templates are waiting for review.</p>
+          </div>
+        ) : (
+          <div className="space-y-5">
+            {pendingSubmissions.map((submission) => (
+              <article
+                key={submission.id}
+                className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-5"
+              >
+                <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+                  <div>
+                    <div className="mb-3 flex flex-wrap items-center gap-3">
+                      <span
+                        className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest ${
+                          statusStyles[submission.status]
+                        }`}
+                      >
+                        {submission.status}
+                      </span>
+                      <span className="text-xs text-on-surface-variant">
+                        Submitted by {submission.user.name || submission.user.email}
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl font-headline font-bold text-on-surface">
+                      {submission.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
+                      {submission.description}
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {submission.categories.map((category) => (
+                        <span
+                          key={category.id}
+                          className="rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-on-surface"
+                        >
+                          {category.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <textarea
+                      value={reviewNotes[submission.id] ?? ""}
+                      onChange={(event) =>
+                        setReviewNotes((current) => ({
+                          ...current,
+                          [submission.id]: event.target.value,
+                        }))
+                      }
+                      rows={5}
+                      className="w-full rounded-xl border border-outline-variant/25 bg-white px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10"
+                      placeholder="Add review notes for the creator"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => reviewSubmission(submission.id, "approve")}
+                        className="rounded-xl bg-primary px-4 py-3 text-xs font-bold uppercase tracking-widest text-white transition hover:opacity-90"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => reviewSubmission(submission.id, "reject")}
+                        className="rounded-xl bg-error/10 px-4 py-3 text-xs font-bold uppercase tracking-widest text-error transition hover:bg-error/20"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm">
+        <div className="mb-6">
+          <h2 className="text-2xl font-headline font-bold text-on-surface">Approved Library</h2>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Manage visibility, premium access, and creator ownership on public templates.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="p-12 text-center">
             <LoadingIndicator label="Loading templates..." />
           </div>
         ) : templates.length === 0 ? (
-          <div className="col-span-full p-12 text-center bg-surface-container-lowest border border-dashed border-outline-variant/30 rounded-xl">
-            <p className="text-on-surface-variant mb-4">No templates available. Create your first one to get started.</p>
-            <button className="px-6 py-2 bg-surface-container-highest font-bold text-xs uppercase tracking-widest rounded text-on-surface hover:bg-surface-container-high transition-colors">
-              Add Template
-            </button>
+          <div className="rounded-2xl border border-dashed border-outline-variant/30 bg-surface-container-low p-10 text-center">
+            <p className="text-on-surface-variant">No approved templates are available yet.</p>
           </div>
-        ) : templates.map((t) => (
-          <div key={t.id} className="group flex h-full flex-col rounded-xl border border-outline-variant/20 bg-surface-container-lowest overflow-hidden shadow-sm">
-            <div className="aspect-[16/9] bg-surface-container w-full relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-surface-container to-surface-container-lowest flex items-center justify-center">
-                <Icon name="design_services" className="text-5xl text-on-surface-variant/20 group-hover:scale-110 transition-transform duration-500" />
-              </div>
-              <div className="absolute top-3 left-3 flex gap-2">
-                <span className="bg-primary px-2 py-0.5 rounded text-[10px] uppercase font-bold text-white tracking-widest">{t.category}</span>
-                {t.isPremium && (
-                  <span className="bg-tertiary-container px-2 py-0.5 rounded text-[10px] uppercase font-bold text-on-tertiary-container tracking-widest flex items-center gap-1">
-                    <Icon name="star" filled className="text-[10px]" /> Premium
-                  </span>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex flex-1 flex-col p-5">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="font-headline font-bold text-lg leading-tight mb-1">{t.name}</h3>
-                  <p className="text-xs text-on-surface-variant">{t.portfolios?.length || 0} Portfolios built</p>
-                </div>
-                <div className="flex bg-surface-container-low rounded p-1">
-                  <button 
-                    onClick={() => toggleTemplate(t.id, "isActive", t.isActive)}
-                    className={`p-1.5 rounded transition-colors ${t.isActive ? 'text-primary' : 'text-outline hover:text-on-surface'}`}
-                    title={t.isActive ? "Hide Template" : "Publish Template"}
-                  >
-                    <Icon name={t.isActive ? "visibility" : "visibility_off"} className="text-[18px]" />
-                  </button>
-                  <button className="p-1.5 rounded text-outline hover:text-on-surface transition-colors" title="Edit Template">
-                    <Icon name="edit" className="text-[18px]" />
-                  </button>
-                </div>
-              </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            {templates.map((template) => (
+              <article
+                key={template.id}
+                className="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-5"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      {template.categories.map((category) => (
+                        <span
+                          key={category.id}
+                          className="rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-on-surface"
+                        >
+                          {category.name}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="text-xl font-headline font-bold text-on-surface">{template.name}</h3>
+                    <p className="mt-1 text-sm text-on-surface-variant">
+                      {template.creator?.name || template.creator?.email || "Platform template"}
+                    </p>
+                    <p className="mt-2 text-xs uppercase tracking-widest text-on-surface-variant">
+                      {template.portfolios.length} portfolios built
+                    </p>
+                  </div>
 
-              <div className="mt-auto border-t border-outline-variant/10 pt-4 flex gap-2">
-                <button 
-                  onClick={() => toggleTemplate(t.id, "isPremium", t.isPremium)}
-                  className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest rounded transition-all border ${
-                    t.isPremium 
-                      ? 'bg-tertiary-container/20 border-tertiary-container text-tertiary' 
-                      : 'bg-transparent border-outline-variant/30 text-outline hover:bg-surface-container-lowest hover:border-outline'
-                  }`}
-                >
-                  {t.isPremium ? "Make Free" : "Make Premium"}
-                </button>
-                <button className="flex-1 py-2 text-[10px] font-bold uppercase tracking-widest rounded bg-error/10 text-error hover:bg-error/20 transition-all border border-transparent">
-                  Delete
-                </button>
-              </div>
-            </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleTemplate(template.id, "isActive", template.isActive)}
+                      className={`rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-widest transition ${
+                        template.isActive
+                          ? "bg-primary/10 text-primary"
+                          : "bg-surface-container-high text-on-surface"
+                      }`}
+                    >
+                      {template.isActive ? "Visible" : "Hidden"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => toggleTemplate(template.id, "isPremium", template.isPremium)}
+                      className={`rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-widest transition ${
+                        template.isPremium
+                          ? "bg-tertiary-container text-on-tertiary-container"
+                          : "bg-surface-container-high text-on-surface"
+                      }`}
+                    >
+                      {template.isPremium ? "Premium" : "Free"}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
           </div>
-        ))}
-      </div>
+        )}
+      </section>
     </div>
   );
 }

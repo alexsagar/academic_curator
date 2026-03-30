@@ -1,104 +1,164 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Icon from "@/components/ui/Icon";
+import LoadingIndicator from "@/components/ui/LoadingIndicator";
+
+interface ModerationSubmission {
+  id: string;
+  title: string;
+  description: string;
+  status: "SUBMITTED" | "APPROVED" | "REJECTED" | "DRAFT";
+  adminReviewNotes: string | null;
+  submittedAt: string | null;
+  reviewedAt: string | null;
+  user: {
+    name: string | null;
+    email: string;
+  };
+  categories: Array<{
+    id: string;
+    name: string;
+  }>;
+}
+
+const tabConfig = [
+  { id: "SUBMITTED", label: "Requires Action" },
+  { id: "REJECTED", label: "Rejected" },
+  { id: "APPROVED", label: "Approved" },
+] as const;
 
 export default function AdminModerationPage() {
-  const [activeTab, setActiveTab] = useState<"pending" | "resolved">("pending");
+  const [activeTab, setActiveTab] = useState<(typeof tabConfig)[number]["id"]>("SUBMITTED");
+  const [items, setItems] = useState<ModerationSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const queue = [
-    { id: "req_1", type: "Portfolio Review", user: "John Doe", title: "Structural Engineering Thesis", status: "pending", date: "2 hours ago" },
-    { id: "req_2", type: "Flagged Content", user: "Jane Smith", title: "Inappropriate Images Reported", status: "pending", date: "5 hours ago", severity: "high" },
-    { id: "req_3", type: "Template Approval", user: "Agency X", title: "Minimalist Developer Theme", status: "pending", date: "1 day ago" },
-  ];
+  const fetchItems = useCallback(async (status: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/admin/template-submissions?status=${status}`);
+      if (!response.ok) {
+        throw new Error("Unable to load moderation items");
+      }
+
+      const payload = await response.json();
+      setItems(Array.isArray(payload) ? payload : []);
+    } catch (fetchError) {
+      setError(fetchError instanceof Error ? fetchError.message : "Unable to load moderation items");
+      setItems([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void fetchItems(activeTab);
+  }, [activeTab, fetchItems]);
 
   return (
-    <div>
-      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-        <div>
-          <h1 className="mb-2 text-3xl font-headline font-extrabold tracking-tight text-on-surface">Moderation Queue</h1>
-          <p className="text-sm text-on-surface-variant">
-            Review flagged content, approve template submissions, and enforce platform guidelines.
-          </p>
+    <div className="space-y-8">
+      <div>
+        <h1 className="mb-2 text-3xl font-headline font-extrabold tracking-tight text-on-surface">
+          Moderation Queue
+        </h1>
+        <p className="text-sm text-on-surface-variant">
+          Review creator template submissions and inspect the approval history by status.
+        </p>
+      </div>
+
+      <div className="flex gap-4 border-b border-outline-variant/20">
+        {tabConfig.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            type="button"
+            className={`relative pb-3 text-sm font-bold uppercase tracking-widest transition-colors ${
+              activeTab === tab.id
+                ? "text-primary"
+                : "text-on-surface-variant hover:text-on-surface"
+            }`}
+          >
+            {tab.label}
+            {activeTab === tab.id ? (
+              <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-t-full bg-primary"></span>
+            ) : null}
+          </button>
+        ))}
+      </div>
+
+      {error ? (
+        <div className="rounded-xl border border-error/20 bg-error/5 px-4 py-3 text-sm text-error">
+          {error}
         </div>
-      </div>
+      ) : null}
 
-      <div className="mb-6 flex gap-4 border-b border-outline-variant/20">
-        <button
-          onClick={() => setActiveTab("pending")}
-          className={`relative pb-3 text-sm font-bold uppercase tracking-widest transition-colors ${activeTab === "pending" ? "text-primary" : "text-on-surface-variant hover:text-on-surface"}`}
-          type="button"
-        >
-          Requires Action
-          <span className="ml-2 rounded-full bg-error px-1.5 py-0.5 text-[10px] text-white">3</span>
-          {activeTab === "pending" && <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-t-full bg-primary"></span>}
-        </button>
-        <button
-          onClick={() => setActiveTab("resolved")}
-          className={`relative pb-3 text-sm font-bold uppercase tracking-widest transition-colors ${activeTab === "resolved" ? "text-primary" : "text-on-surface-variant hover:text-on-surface"}`}
-          type="button"
-        >
-          Resolved Log
-          {activeTab === "resolved" && <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-t-full bg-primary"></span>}
-        </button>
-      </div>
-
-      <div className="space-y-4">
-        {activeTab === "pending" ? (
-          queue.map((item) => (
-            <div
+      {loading ? (
+        <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-12 text-center">
+          <LoadingIndicator label="Loading moderation items..." />
+        </div>
+      ) : items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-outline-variant/30 bg-surface-container-lowest p-12 text-center">
+          <p className="text-on-surface-variant">No moderation items in this state.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map((item) => (
+            <article
               key={item.id}
-              className="flex flex-col justify-between gap-6 rounded-xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm transition-all hover:shadow-md md:flex-row md:items-center"
+              className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm"
             >
-              <div className="flex items-start gap-4">
-                <div
-                  className={`flex shrink-0 items-center justify-center rounded-lg p-3 ${
-                    item.severity === "high"
-                      ? "bg-error-container text-error"
-                      : item.type.includes("Template")
-                        ? "bg-primary-container text-primary"
-                        : "bg-surface-container-high text-on-surface-variant"
-                  }`}
-                >
-                  <Icon
-                    name={item.severity === "high" ? "warning" : item.type.includes("Template") ? "code" : "article"}
-                  />
-                </div>
-                <div>
-                  <div className="mb-1 flex items-center gap-3">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">{item.type}</span>
-                    <span className="text-[10px] text-outline">{"•"} {item.date}</span>
-                    {item.severity === "high" ? (
-                      <span className="rounded-full bg-error/10 px-2 text-[10px] font-bold uppercase text-error">High Priority</span>
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="rounded-xl bg-primary/10 p-3 text-primary">
+                    <Icon name="dashboard_customize" />
+                  </div>
+                  <div>
+                    <div className="mb-2 flex flex-wrap items-center gap-3">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                        Template Submission
+                      </span>
+                      <span className="text-xs text-on-surface-variant">
+                        {item.submittedAt
+                          ? `Submitted ${new Date(item.submittedAt).toLocaleDateString()}`
+                          : `Created ${new Date(item.reviewedAt || Date.now()).toLocaleDateString()}`}
+                      </span>
+                    </div>
+                    <h2 className="text-xl font-headline font-bold text-on-surface">{item.title}</h2>
+                    <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
+                      {item.description}
+                    </p>
+                    <p className="mt-3 text-sm text-on-surface-variant">
+                      Creator: <span className="font-semibold text-on-surface">{item.user.name || item.user.email}</span>
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {item.categories.map((category) => (
+                        <span
+                          key={category.id}
+                          className="rounded-full bg-surface-container-high px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-on-surface"
+                        >
+                          {category.name}
+                        </span>
+                      ))}
+                    </div>
+                    {item.adminReviewNotes ? (
+                      <div className="mt-4 rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant">
+                        {item.adminReviewNotes}
+                      </div>
                     ) : null}
                   </div>
-                  <h3 className="text-base font-headline font-bold text-on-surface">{item.title}</h3>
-                  <p className="text-sm text-on-surface-variant">
-                    Submitted by: <span className="font-semibold text-on-surface">{item.user}</span>
-                  </p>
                 </div>
-              </div>
 
-              <div className="flex shrink-0 items-center gap-3">
-                <button className="rounded bg-surface-container-low px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-on-surface transition-colors hover:bg-surface-container-high" type="button">
-                  Review Case
-                </button>
-                <div className="hidden h-8 w-px bg-outline-variant/30 md:block"></div>
-                <button className="rounded p-2 text-emerald-600 transition-colors hover:bg-emerald-50" title="Approve/Resolve" type="button">
-                  <Icon name="check_circle" />
-                </button>
-                <button className="rounded p-2 text-error transition-colors hover:bg-error-container/50" title="Reject/Remove" type="button">
-                  <Icon name="cancel" />
-                </button>
+                <span className="rounded-full bg-surface-container-high px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-on-surface">
+                  {item.status}
+                </span>
               </div>
-            </div>
-          ))
-        ) : (
-          <div className="rounded-xl border border-dashed border-outline-variant/30 bg-surface-container-lowest p-12 text-center">
-            <p className="text-on-surface-variant">No resolved items to display.</p>
-          </div>
-        )}
-      </div>
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
