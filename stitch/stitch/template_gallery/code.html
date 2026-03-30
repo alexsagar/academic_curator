@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Template Gallery | The Academic Curator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary-fixed": "#ffdcbd",
+              "surface-tint": "#006591",
+              "on-tertiary-fixed-variant": "#693c00",
+              "on-secondary-fixed-variant": "#38485d",
+              "primary-container": "#0ea5e9",
+              "tertiary-fixed-dim": "#ffb86e",
+              "secondary-container": "#d0e1fb",
+              "on-secondary-container": "#54647a",
+              "primary": "#006591",
+              "primary-fixed-dim": "#89ceff",
+              "on-primary-fixed-variant": "#004c6e",
+              "surface-variant": "#e0e3e5",
+              "surface-container-lowest": "#ffffff",
+              "tertiary": "#8a5100",
+              "on-tertiary-fixed": "#2c1600",
+              "outline": "#6e7881",
+              "on-error": "#ffffff",
+              "error-container": "#ffdad6",
+              "on-primary-fixed": "#001e2f",
+              "surface-dim": "#d8dadc",
+              "on-primary": "#ffffff",
+              "on-surface-variant": "#3e4850",
+              "outline-variant": "#bec8d2",
+              "on-primary-container": "#003751",
+              "inverse-primary": "#89ceff",
+              "inverse-on-surface": "#eff1f3",
+              "on-background": "#191c1e",
+              "tertiary-container": "#de8712",
+              "surface-container-highest": "#e0e3e5",
+              "secondary-fixed-dim": "#b7c8e1",
+              "secondary-fixed": "#d3e4fe",
+              "surface-container": "#eceef0",
+              "surface-bright": "#f7f9fb",
+              "on-error-container": "#93000a",
+              "surface-container-high": "#e6e8ea",
+              "on-surface": "#191c1e",
+              "error": "#ba1a1a",
+              "on-secondary": "#ffffff",
+              "surface-container-low": "#f2f4f6",
+              "secondary": "#505f76",
+              "on-tertiary-container": "#4d2b00",
+              "background": "#f7f9fb",
+              "on-secondary-fixed": "#0b1c30",
+              "surface": "#f7f9fb",
+              "primary-fixed": "#c9e6ff",
+              "inverse-surface": "#2d3133",
+              "on-tertiary": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      .gradient-primary { background: linear-gradient(135deg, #006591 0%, #0ea5e9 100%); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/15 dark:border-slate-800/15 shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-6 h-20">
+<div class="flex items-center gap-2">
+<span class="text-2xl font-extrabold tracking-tighter text-slate-900 dark:text-white font-headline">The Academic Curator</span>
+</div>
+<div class="hidden md:flex items-center space-x-8 font-manrope font-semibold tracking-tight">
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">How It Works</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">Features</a>
+<a class="text-sky-600 dark:text-sky-400 font-bold border-b-2 border-sky-600" href="#">Templates</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" href="#">About</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="gradient-primary text-white px-6 py-2.5 rounded-md font-bold text-xs uppercase tracking-widest active:scale-95 duration-150 ease-in-out">
+                    Sign Up
+                </button>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-20">
+<!-- Hero Section -->
+<section class="max-w-7xl mx-auto px-6 mb-20 text-center md:text-left">
+<div class="flex flex-col md:flex-row justify-between items-end gap-8">
+<div class="max-w-3xl">
+<h1 class="text-5xl md:text-6xl font-extrabold font-headline tracking-tighter text-on-surface mb-6">
+                        Curate Your <span class="text-primary">Professional Narrative</span>
+</h1>
+<p class="text-xl text-on-surface-variant leading-relaxed font-medium">
+                        Explore our high-end, editorially designed templates. Every layout is fully customizable, built to showcase your academic journey with the authority of a digital gallery.
+                    </p>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-low p-1.5 rounded-full no-scrollbar overflow-x-auto">
+<button class="px-6 py-2 rounded-full bg-primary text-on-primary text-sm font-semibold whitespace-nowrap">All Templates</button>
+<button class="px-6 py-2 rounded-full hover:bg-surface-container-high text-on-surface-variant text-sm font-semibold transition-colors whitespace-nowrap">Modern</button>
+<button class="px-6 py-2 rounded-full hover:bg-surface-container-high text-on-surface-variant text-sm font-semibold transition-colors whitespace-nowrap">Classic</button>
+<button class="px-6 py-2 rounded-full hover:bg-surface-container-high text-on-surface-variant text-sm font-semibold transition-colors whitespace-nowrap">Creative</button>
+</div>
+</div>
+</section>
+<!-- Template Grid -->
+<section class="max-w-7xl mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+<!-- Card 1: Modern -->
+<div class="group flex flex-col">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+<img alt="Modern Template Preview" class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" data-alt="clean minimalist portfolio layout with wide margins and serif typography on a soft grey background with architectural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr2fKaZsrWv3Dp7HFRSVwlhvAPTkY7qUk-ZAmT697KGB-USEIeOk3TVUKQbyfo-xixlyxldy-AOT56xYVkmAomhRgh9i9gsi1P4eSYabWW5gTM-hldXTFyV2o7AqUrIeEz559jTNIYlVWOB4fdQiD0HMFXayHilqJu9RsotS8kKVydQyREsPGubjU0zcQNHnG8Ufad7M9tPG5PV0nb4wdTmxL4-pmUGhiZNPQsaOr3pkp_WdX_PVx8ypwNYGjpVrqEGbnBPVlJ96s"/>
+<div class="absolute inset-0 bg-on-surface/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+<!-- Overlay actions handled below for accessibility, but visible on hover -->
+</div>
+<div class="absolute top-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-primary border border-outline-variant/15">Modern</span>
+</div>
+</div>
+<div>
+<h3 class="text-2xl font-bold font-headline mb-2">The Minimalist Scholar</h3>
+<p class="text-on-surface-variant mb-6 text-sm leading-relaxed">Prioritizes whitespace and bold typography. Perfect for researchers with high-impact publications.</p>
+<div class="flex gap-3">
+<button class="flex-1 py-3 bg-surface-container-highest text-on-surface text-xs font-bold uppercase tracking-widest rounded-md hover:bg-surface-container-high transition-colors">Preview</button>
+<button class="flex-1 py-3 gradient-primary text-white text-xs font-bold uppercase tracking-widest rounded-md shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all">Use Template</button>
+</div>
+</div>
+</div>
+<!-- Card 2: Classic -->
+<div class="group flex flex-col lg:translate-y-12">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+<img alt="Classic Template Preview" class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" data-alt="sophisticated editorial layout for an academic portfolio featuring rich textures and warm neutral tones with centered alignment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgERK03-DpVjuBIhAKZ3Mb36JX-jNuOjBPsIgakGc_6SF3UlCFqLVdjVn2FUyBR2sep0GV-y-w7P2-Rfmd-WhPCbYmtxL5M-KnLr4uqbUAUV5_5T_Q4w0fzd5IWNt5RxJBG5CCpq9Wz-2mmL4_wZUPsKHgQVTDA-dU2EUzS4iVkV47Eu8ZhFevSIU8xpnck4lVY0plAR_JRmEGqru0JCvvAhYCxlt7_56Lg2JLHn8tovXjw6tz8I5o6IBBSyrXXEfGJVKrMr_NMT4"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-tertiary border border-outline-variant/15">Classic</span>
+</div>
+</div>
+<div>
+<h3 class="text-2xl font-bold font-headline mb-2">Heritage Monograph</h3>
+<p class="text-on-surface-variant mb-6 text-sm leading-relaxed">A timeless approach inspired by traditional journals. Ideal for humanities and archival studies.</p>
+<div class="flex gap-3">
+<button class="flex-1 py-3 bg-surface-container-highest text-on-surface text-xs font-bold uppercase tracking-widest rounded-md hover:bg-surface-container-high transition-colors">Preview</button>
+<button class="flex-1 py-3 gradient-primary text-white text-xs font-bold uppercase tracking-widest rounded-md shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all">Use Template</button>
+</div>
+</div>
+</div>
+<!-- Card 3: Creative -->
+<div class="group flex flex-col">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+<img alt="Creative Template Preview" class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" data-alt="dynamic asymmetric portfolio design with vibrant accent colors and experimental typography grid for creative industries" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK9GQZ_FHxPVzUzhQOHiYPP23N9KXOGs_pChDZkyvJew4eYMZcMFXEEOCKivQ8BWMsHoWexG1YDZbjA6KRVyL8VA5xi7eaPbZ3S0mCSRY5ckNrOVK6ksE9GC3EBJhdAKpuPp82pja3J63iQwpiWnXBEGxAJj7kKsNl033jWY-RpsvayxAjcOIm2BXAZx3XufFgyi7T3t6lqq50656DEfQDM8qb3XmHXt1RznC72DYxaH0q5LwOZSWftfPn9GNF4IQ-G0lgLStBhMw"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-primary-container border border-outline-variant/15">Creative</span>
+</div>
+</div>
+<div>
+<h3 class="text-2xl font-bold font-headline mb-2">The Digital Curator</h3>
+<p class="text-on-surface-variant mb-6 text-sm leading-relaxed">Dynamic grids and interaction-first design. Best for visual designers and media students.</p>
+<div class="flex gap-3">
+<button class="flex-1 py-3 bg-surface-container-highest text-on-surface text-xs font-bold uppercase tracking-widest rounded-md hover:bg-surface-container-high transition-colors">Preview</button>
+<button class="flex-1 py-3 gradient-primary text-white text-xs font-bold uppercase tracking-widest rounded-md shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all">Use Template</button>
+</div>
+</div>
+</div>
+<!-- Card 4: Modern 2 -->
+<div class="group flex flex-col">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+<img alt="Modern 2 Preview" class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" data-alt="sleek dark mode portfolio interface with neon blue accents and technical diagrams for engineering students" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiePlxts26T9Rn1oOKnLhSLnNaQuTRphg1y5d5b3Re0_zbzriaicSlU-9GMXDqA6gxpfW7pjfamqwJAk29F4PdGEGiwjVFmgUBgebvIrXjgZPsRM0TLoc4cEqTDs2fH8gEo7_mtqALieFuafifDJxT6m87Pq7sy7L66SoMWUBfTHcMc6aYP_Bwed0YJXLAAIgBw1lLu1eMxweoZqLdYsRH_YvpwAnBa8opIgLfXymyx4IH96slsLhtwBsBd6kVVE__Ixf4CB99cCw"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-primary border border-outline-variant/15">Modern</span>
+</div>
+</div>
+<div>
+<h3 class="text-2xl font-bold font-headline mb-2">Engineered Precision</h3>
+<p class="text-on-surface-variant mb-6 text-sm leading-relaxed">Structured, data-driven layouts for STEM professionals and engineers.</p>
+<div class="flex gap-3">
+<button class="flex-1 py-3 bg-surface-container-highest text-on-surface text-xs font-bold uppercase tracking-widest rounded-md hover:bg-surface-container-high transition-colors">Preview</button>
+<button class="flex-1 py-3 gradient-primary text-white text-xs font-bold uppercase tracking-widest rounded-md shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all">Use Template</button>
+</div>
+</div>
+</div>
+<!-- Card 5: Classic 2 -->
+<div class="group flex flex-col lg:translate-y-12">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+<img alt="Classic 2 Preview" class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" data-alt="elegant academic resume template with traditional typography and parchment-like color palette for medical professionals" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7nKssxxkIWosPQlJ5NPRSmOXKIcKq8Lu2joWjwA7CZrZBP9o7Syp1OqUJhbzDmTTlh2dpodm0nmZRlMJhxeIP55iKoaIJX6hOywfTrC3ta0h2mWRmFJUorssAhf052XWuY6LsN5xM1G-vfPyfiUHdHIHCMNYCbRxxglINIday_FjjJvI1HBRBdAIMMxUy1UkJumrW6AX7e-acq9qnMuqwpW_Wv9hGCfi5J0DW2Yz6fsP-I753wAA9eH8vT7xTpG5GytMok1Do-Ko"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-tertiary border border-outline-variant/15">Classic</span>
+</div>
+</div>
+<div>
+<h3 class="text-2xl font-bold font-headline mb-2">The Lexicon</h3>
+<p class="text-on-surface-variant mb-6 text-sm leading-relaxed">Focus on narrative depth and extensive bibliography sections.</p>
+<div class="flex gap-3">
+<button class="flex-1 py-3 bg-surface-container-highest text-on-surface text-xs font-bold uppercase tracking-widest rounded-md hover:bg-surface-container-high transition-colors">Preview</button>
+<button class="flex-1 py-3 gradient-primary text-white text-xs font-bold uppercase tracking-widest rounded-md shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all">Use Template</button>
+</div>
+</div>
+</div>
+<!-- Card 6: Creative 2 -->
+<div class="group flex flex-col">
+<div class="relative aspect-[4/5] rounded-xl overflow-hidden bg-surface-container-low mb-6">
+<img alt="Creative 2 Preview" class="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105" data-alt="bold brutalist web design for a student portfolio with overlapping elements and high contrast black and white photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDABtu_o3C5FNv3PQP9Sek_K38jAascXMW3aqKxfpHEZo_Vb_sfvFBj0IGCGRfOC7PmaLoi06Up6DbzF9NHneWTYAJXx1lVj2gblVm82ENFMConuhNZoJf7mTPF2HvKzk-pfOC9K1_vATLdCNGS1OO0nUxkmiQIkc8Y6dO-TONSugZrhLcZn53kRJpkYSDaF8yeF6mFsHbfO52lS-LnP3d2st5SVr4VUwDaMaFPLu3uvv8UTdn_ydDj0tW5ZvdcNkGwwCoJma7s4Bg"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase text-primary-container border border-outline-variant/15">Creative</span>
+</div>
+</div>
+<div>
+<h3 class="text-2xl font-bold font-headline mb-2">Avant-Garde</h3>
+<p class="text-on-surface-variant mb-6 text-sm leading-relaxed">A bold statement layout for those who break boundaries and challenge conventions.</p>
+<div class="flex gap-3">
+<button class="flex-1 py-3 bg-surface-container-highest text-on-surface text-xs font-bold uppercase tracking-widest rounded-md hover:bg-surface-container-high transition-colors">Preview</button>
+<button class="flex-1 py-3 gradient-primary text-white text-xs font-bold uppercase tracking-widest rounded-md shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all">Use Template</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="max-w-7xl mx-auto px-6 mt-32">
+<div class="bg-on-surface rounded-2xl p-12 md:p-20 flex flex-col items-center text-center">
+<h2 class="text-surface font-headline text-4xl md:text-5xl font-extrabold tracking-tight mb-8">Ready to build your legacy?</h2>
+<p class="text-surface/70 max-w-2xl text-lg mb-10 font-body leading-relaxed">
+                    Select a template and start customizing. No coding required, just your vision and our editorial tools.
+                </p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="px-10 py-4 gradient-primary text-white rounded-md font-bold text-sm uppercase tracking-widest shadow-2xl shadow-primary/20 hover:scale-105 transition-transform">Get Started for Free</button>
+<button class="px-10 py-4 bg-surface/10 text-surface border border-surface/20 rounded-md font-bold text-sm uppercase tracking-widest hover:bg-surface/20 transition-all">Talk to an Expert</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-50 dark:bg-slate-950 w-full py-12 px-6 border-t border-slate-200 dark:border-slate-800">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-7xl mx-auto">
+<div class="col-span-1 md:col-span-2">
+<span class="text-xl font-bold text-slate-900 dark:text-white font-headline">The Academic Curator</span>
+<p class="mt-4 text-slate-500 dark:text-slate-400 font-inter text-sm max-w-sm leading-relaxed">
+                    Empowering the next generation of scholars to showcase their journey with elegance and editorial precision.
+                </p>
+</div>
+<div>
+<h4 class="font-headline font-bold text-slate-900 dark:text-white mb-4">Resources</h4>
+<ul class="space-y-2">
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-sky-600 transition-colors font-inter text-sm hover:underline decoration-sky-500/30 underline-offset-4" href="#">Templates</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-sky-600 transition-colors font-inter text-sm hover:underline decoration-sky-500/30 underline-offset-4" href="#">Features</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-sky-600 transition-colors font-inter text-sm hover:underline decoration-sky-500/30 underline-offset-4" href="#">LinkedIn</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-sky-600 transition-colors font-inter text-sm hover:underline decoration-sky-500/30 underline-offset-4" href="#">Twitter</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-headline font-bold text-slate-900 dark:text-white mb-4">Legal</h4>
+<ul class="space-y-2">
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-sky-600 transition-colors font-inter text-sm hover:underline decoration-sky-500/30 underline-offset-4" href="#">Contact</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-sky-600 transition-colors font-inter text-sm hover:underline decoration-sky-500/30 underline-offset-4" href="#">Privacy Policy</a></li>
+<li><a class="text-slate-500 dark:text-slate-400 hover:text-sky-600 transition-colors font-inter text-sm hover:underline decoration-sky-500/30 underline-offset-4" href="#">Terms of Service</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+<span class="font-inter text-sm text-slate-500 dark:text-slate-400">© 2024 The Academic Curator. All rights reserved.</span>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-slate-400 hover:text-primary transition-colors cursor-pointer" data-icon="share">share</span>
+<span class="material-symbols-outlined text-slate-400 hover:text-primary transition-colors cursor-pointer" data-icon="language">language</span>
+</div>
+</div>
+</footer>
+</body></html>

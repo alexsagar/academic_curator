@@ -1,0 +1,240 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum PortfolioStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  PUBLISHED
+}
+
+enum SubscriptionTier {
+  FREE
+  PROFESSIONAL
+  INSTITUTIONAL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  PAST_DUE
+  TRIALING
+}
+
+// ── Auth Models (NextAuth) ──
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ── Core Models ──
+
+model User {
+  id                   String             @id @default(cuid())
+  name                 String?
+  email                String             @unique
+  emailVerified        DateTime?
+  image                String?
+  password             String?
+  bio                  String?
+  role                 Role               @default(USER)
+  isActive             Boolean            @default(true)
+  language             String             @default("en")
+  onboardingCompleted  Boolean            @default(false)
+  accounts             Account[]
+  sessions             Session[]
+  portfolios           Portfolio[]
+  activities           ActivityLog[]
+  ratings              TemplateRating[]
+  feedback             TemplateFeedback[]
+  subscription         Subscription?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+}
+
+model Template {
+  id          String             @id @default(cuid())
+  name        String
+  slug        String             @unique
+  category    String
+  tags        String[]           @default([])
+  description String
+  thumbnail   String
+  htmlContent String             @db.Text
+  cssContent  String             @db.Text
+  isPremium   Boolean            @default(false)
+  isActive    Boolean            @default(true)
+  portfolios  Portfolio[]
+  ratings     TemplateRating[]
+  feedback    TemplateFeedback[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@index([isActive, category])
+}
+
+model Portfolio {
+  id             String            @id @default(cuid())
+  title          String
+  slug           String?           @unique
+  userId         String
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId     String
+  template       Template          @relation(fields: [templateId], references: [id])
+  customizations Json              @default("{}")
+  progress       Int               @default(0)
+  status         PortfolioStatus   @default(DRAFT)
+  moderationNote String?
+  isPublished    Boolean           @default(false)
+  publishedUrl   String?
+  customDomain   String?
+  versions       PortfolioVersion[]
+  views          PortfolioView[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model PortfolioVersion {
+  id             String   @id @default(cuid())
+  portfolioId    String
+  portfolio      Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  versionNumber  Int
+  customizations Json
+  changeSummary  String?
+  createdAt      DateTime @default(now())
+
+  @@index([portfolioId])
+  @@unique([portfolioId, versionNumber])
+}
+
+model PortfolioView {
+  id          String   @id @default(cuid())
+  portfolioId String
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  viewerIp    String?
+  referrer    String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([portfolioId])
+  @@index([createdAt])
+}
+
+// ── Analytics ──
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([userId, createdAt])
+}
+
+// ── Feedback & Ratings ──
+
+model TemplateRating {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId String
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  rating     Int      // 1-5
+  review     String?
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, templateId])
+}
+
+model TemplateFeedback {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId String
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  message    String
+  type       String   @default("feedback") // "feedback" | "suggestion"
+  createdAt  DateTime @default(now())
+
+  @@index([templateId])
+}
+
+// ── Subscriptions ──
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier                 SubscriptionTier   @default(FREE)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  currentPeriodEnd     DateTime?
+  status               SubscriptionStatus @default(ACTIVE)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([stripeCustomerId])
+}
+
+// ── Platform Settings ──
+
+model PlatformSettings {
+  id    String @id @default(cuid())
+  key   String @unique
+  value Json
+}

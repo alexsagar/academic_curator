@@ -1,0 +1,14 @@
+{
+  "Common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "signup": "Sign Up",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "Home": {
+    "title": "Academic Curator",
+    "subtitle": "Curate your scholarly identity."
+  }
+}
